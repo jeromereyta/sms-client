@@ -24,6 +24,7 @@ import AppTopBar from './AppTopbar.vue';
 import AppMenu from './AppMenu.vue';
 import AppConfig from './AppConfig.vue';
 import AppFooter from './AppFooter.vue';
+import EventBus from "@/common/EventBus";
 
 export default {
     emits: ['change-theme'],
@@ -152,7 +153,19 @@ export default {
             this.$toast.removeAllGroups();
         }
     },
+    mounted() {
+      EventBus.on("logout", () => {
+        this.logOut();
+      });
+    },
+    beforeUnmount() {
+      EventBus.remove("logout");
+    },
     methods: {
+        logOut() {
+          this.$store.dispatch('AuthStore/logout');
+          this.$router.push('/login');
+        },
         onWrapperClick() {
             if (!this.menuClick) {
                 this.overlayMenuActive = false;

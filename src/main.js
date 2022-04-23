@@ -98,6 +98,7 @@ import CodeHighlight from './AppCodeHighlight';
 import BlockViewer from './BlockViewer';
 
 import './interceptors/axios';
+import AxiosInterceptors from "@/service/AxiosInterceptors";
 
 router.beforeEach(function(to, from, next) {
     window.scrollTo(0, 0);
@@ -105,6 +106,8 @@ router.beforeEach(function(to, from, next) {
 });
 
 const app = createApp(AppWrapper);
+
+AxiosInterceptors(store);
 
 app.config.globalProperties.$appState = reactive({ theme: 'lara-light-indigo', darkTheme: false });
 

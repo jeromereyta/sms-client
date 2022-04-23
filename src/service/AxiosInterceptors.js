@@ -1,12 +1,30 @@
-import axiosInstance from "./api";
-import TokenService from "./token.service";
+
+import TokenService from "@/service/TokenService";
+import AxiosInstance from "@/service/AxiosInstance";
+
 const AxiosInterceptors = (store) => {
-    axiosInstance.interceptors.request.use(
+
+    // for multiple requests
+    let isRefreshing = false;
+    let failedQueue = [];
+
+    const processQueue = (error, token = null) => {
+        failedQueue.forEach(prom => {
+            if (error) {
+                prom.reject(error);
+            } else {
+                prom.resolve(token);
+            }
+        })
+
+        failedQueue = [];
+    }
+
+    AxiosInstance.interceptors.request.use(
         (config) => {
             const token = TokenService.getLocalAccessToken();
             if (token) {
-                // config.headers["Authorization"] = 'Bearer ' + token;  // for Spring Boot back-end
-                config.headers["x-access-token"] = token; // for Node.js Express back-end
+                config.headers["Authorization"] = 'Bearer ' + token;
             }
             return config;
         },
@@ -14,29 +32,50 @@ const AxiosInterceptors = (store) => {
             return Promise.reject(error);
         }
     );
-    axiosInstance.interceptors.response.use(
+    AxiosInstance.interceptors.response.use(
         (res) => {
             return res;
         },
         async (err) => {
             const originalConfig = err.config;
-            if (originalConfig.url !== "/auth/signin" && err.response) {
-                // Access Token was expired
+
+            if ((originalConfig.url !== "/admin-login" && originalConfig.url !== "/refresh-token" ) && err.response) {
                 if (err.response.status === 401 && !originalConfig._retry) {
+
+                    if (isRefreshing) {
+                        return new Promise(function(resolve, reject) {
+                            failedQueue.push({resolve, reject})
+                        }).then(token => {
+                            originalConfig.headers['Authorization'] = 'Bearer ' + token;
+                            return AxiosInstance(originalConfig);
+                        }).catch(err => {
+                            return Promise.reject(err);
+                        })
+                    }
+
                     originalConfig._retry = true;
+                    isRefreshing = true;
+
                     try {
-                        const rs = await axiosInstance.post("/auth/refreshtoken", {
-                            refreshToken: TokenService.getLocalRefreshToken(),
+                        const rs = await AxiosInstance.post("/refresh-token", {
+                            refresh_token: TokenService.getLocalRefreshToken(),
                         });
-                        const { accessToken } = rs.data;
-                        store.dispatch('auth/refreshToken', accessToken);
-                        TokenService.updateLocalAccessToken(accessToken);
-                        return axiosInstance(originalConfig);
+                        const { access_token } = rs.data;
+                        store.dispatch('AuthStore/refreshToken', access_token);
+                        TokenService.updateLocalAccessToken(access_token);
+                        processQueue(null, access_token);
+                        return AxiosInstance(originalConfig);
                     } catch (_error) {
+                        processQueue(err, null);
+                        store.dispatch('AuthStore/logout');
+                        window.location.href = "#/login";
                         return Promise.reject(_error);
+                    } finally {
+                        isRefreshing = true;
                     }
                 }
             }
+
             return Promise.reject(err);
         }
     );

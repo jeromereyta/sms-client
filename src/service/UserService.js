@@ -1,14 +1,15 @@
-import axios from "axios";
-import AuthenticationService from "./AuthenticationService";
 
-let authenticationService = new AuthenticationService();
+import AxiosInstance from "@/service/AxiosInstance";
+// import AuthenticationService from "./AuthenticationService";
 
-let options = {headers: authenticationService.authHeader()}
+// let authenticationService = new AuthenticationService();
+
+// let options = {headers: authenticationService.authHeader()}
 
 export default class UserService {
 
     getAdminUsers() {
-        return axios.get('v1/users/staff' , options)
+        return AxiosInstance.get('v1/users/staff')
             .then(response => {
                 return response.data;
             }).catch(function(error) {
@@ -17,7 +18,7 @@ export default class UserService {
     }
 
     createAdminUser(user) {
-        return axios.post('v1/users/staff', user, options)
+        return AxiosInstance.post('v1/users/staff', user)
             .then(response => {
                 return response.data;
             }).catch(function(error) {
@@ -26,7 +27,7 @@ export default class UserService {
     }
 
     updateAdminUser(user) {
-        return axios.put('v1/users/staff/' + user.id , user, options)
+        return AxiosInstance.put('v1/users/staff/' + user.id , user)
             .then(response => {
                 return response.data;
             }).catch(function(error) {
@@ -35,7 +36,7 @@ export default class UserService {
     }
 
     deleteAdminUsers(userIds) {
-        return axios.post('v1/users/staff/delete', userIds, options)
+        return AxiosInstance.post('v1/users/staff/delete', userIds)
             .then(response => {
                 return response.data;
             }).catch(function(error) {
@@ -44,7 +45,7 @@ export default class UserService {
     }
 
     getCurrentUserDetails() {
-        return axios.get("v1/users/me", options)
+        return AxiosInstance.get("v1/users/me")
             .then(response => {
                 return response.data;
             }).catch(function (error) {

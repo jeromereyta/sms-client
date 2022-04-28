@@ -39,9 +39,8 @@ export default {
                     label: 'Admin',
                     items: [
                       {label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/'},
-                      {label: 'My Profile', icon: 'pi pi-fw pi-id-card', to: '/profile'},
-                      {label: 'Users', icon: 'pi pi-fw pi-id-card', to: '/admin-users'},
-                      {label: 'Users', icon: 'pi pi-fw pi-id-card', to: '/admin-users'},
+                      {label: 'My Profile', icon: 'pi pi-fw pi-id-card', to: '/admin/profile'},
+                      {label: 'Users', icon: 'pi pi-fw pi-id-card', to: '/admin/users'},
                     ]
                 },
 				{

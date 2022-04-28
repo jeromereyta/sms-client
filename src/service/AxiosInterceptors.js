@@ -3,8 +3,6 @@ import TokenService from "@/service/TokenService";
 import AxiosInstance from "@/service/AxiosInstance";
 
 const AxiosInterceptors = (store) => {
-
-    // for multiple requests
     let isRefreshing = false;
     let failedQueue = [];
 

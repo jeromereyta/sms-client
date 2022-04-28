@@ -52,7 +52,7 @@ export default {
 
       store.dispatch("AuthStore/login", inputs).then(
           () => {
-            router.replace('admin-users')
+            router.replace('/admin/users')
           },
           (error) => {
             this.loading = false;
@@ -87,7 +87,7 @@ export default {
     },
     created() {
       if (this.loggedIn) {
-        this.$router.push("/admin-users");
+        this.$router.push("/admin/users");
       }
     },
     computed: {
